@@ -157,7 +157,7 @@ const Debitos = () => {
                 .filter((d) => selectedDebitos.includes(d.id))
                 .map((d) => (
                   <div key={d.id} className="flex justify-between py-1">
-                    <span>{d.placa} - {d.data}</span>
+                    <span>{d.placa}</span>
                     <span>R$ {(d.valor + d.taxas).toFixed(2).replace(".", ",")}</span>
                   </div>
                 ))}
