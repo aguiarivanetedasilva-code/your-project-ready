@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import heroBg from "@/assets/hero-bg.jpg";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ChevronLeft, AlertTriangle, ChevronDown } from "lucide-react";
+import { ChevronLeft, AlertTriangle, ChevronDown, ChevronRight } from "lucide-react";
 
 const Debitos = () => {
   const [searchParams] = useSearchParams();
@@ -13,6 +13,7 @@ const Debitos = () => {
   const [showModal, setShowModal] = useState(true);
   const [selectedDebitos, setSelectedDebitos] = useState<string[]>(["1"]);
   const [expandTotal, setExpandTotal] = useState(false);
+  const [showPagamento, setShowPagamento] = useState(false);
 
   const now = new Date();
   const dia = now.toLocaleDateString("pt-BR", { weekday: "long" });
@@ -142,41 +143,70 @@ const Debitos = () => {
       </div>
 
       {/* Total Footer */}
-      <div className="max-w-xl mx-auto px-4 mt-8 mb-10">
-        <div className="bg-background rounded-2xl shadow-[0_2px_20px_-4px_rgba(0,0,0,0.1)]">
-          <button
-            className="w-full flex items-center justify-between px-6 py-4"
-            onClick={() => setExpandTotal(!expandTotal)}
-          >
-            <span className="text-sm text-muted-foreground">Total a pagar:</span>
-            <ChevronDown className={`w-5 h-5 text-foreground transition-transform ${expandTotal ? "rotate-180" : ""}`} />
-          </button>
-          {expandTotal && (
-            <div className="px-6 py-2 text-xs text-muted-foreground border-t border-border">
-              {debitos
-                .filter((d) => selectedDebitos.includes(d.id))
-                .map((d) => (
-                  <div key={d.id} className="flex justify-between py-1">
-                    <span>{d.placa}</span>
-                    <span>R$ {(d.valor + d.taxas).toFixed(2).replace(".", ",")}</span>
-                  </div>
-                ))}
-            </div>
-          )}
-          <div className="border-t border-border" />
-          <div className="flex items-center justify-between px-6 py-4">
-            <span className="text-lg font-bold text-foreground">
-              R$ {total.toFixed(2).replace(".", ",")}
-            </span>
-            <Button
-              disabled={selectedDebitos.length === 0}
-              className="bg-foreground text-primary font-semibold px-6 py-2.5 rounded-full hover:bg-foreground/90 border border-foreground"
+      {!showPagamento ? (
+        <div className="max-w-xl mx-auto px-4 mt-8 mb-10">
+          <div className="bg-background rounded-2xl shadow-[0_2px_20px_-4px_rgba(0,0,0,0.1)]">
+            <button
+              className="w-full flex items-center justify-between px-6 py-4"
+              onClick={() => setExpandTotal(!expandTotal)}
             >
-              Continuar
-            </Button>
+              <span className="text-sm text-muted-foreground">Total a pagar:</span>
+              <ChevronDown className={`w-5 h-5 text-foreground transition-transform ${expandTotal ? "rotate-180" : ""}`} />
+            </button>
+            {expandTotal && (
+              <div className="px-6 py-2 text-xs text-muted-foreground border-t border-border">
+                {debitos
+                  .filter((d) => selectedDebitos.includes(d.id))
+                  .map((d) => (
+                    <div key={d.id} className="flex justify-between py-1">
+                      <span>{d.placa}</span>
+                      <span>R$ {(d.valor + d.taxas).toFixed(2).replace(".", ",")}</span>
+                    </div>
+                  ))}
+              </div>
+            )}
+            <div className="border-t border-border" />
+            <div className="flex items-center justify-between px-6 py-4">
+              <span className="text-lg font-bold text-foreground">
+                R$ {total.toFixed(2).replace(".", ",")}
+              </span>
+              <Button
+                disabled={selectedDebitos.length === 0}
+                onClick={() => setShowPagamento(true)}
+                className="bg-foreground text-primary font-semibold px-6 py-2.5 rounded-full hover:bg-foreground/90 border border-foreground"
+              >
+                Continuar
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
+      ) : (
+        <div className="max-w-xl mx-auto px-4 mt-8 mb-10">
+          <h2 className="text-xl font-bold text-foreground mb-1">Forma de pagamento</h2>
+          <p className="text-sm text-muted-foreground mb-6">Selecione abaixo como quer fazer o pagamento</p>
+
+          <button className="w-full flex items-center gap-4 bg-background rounded-xl p-4 shadow-[0_2px_20px_-4px_rgba(0,0,0,0.1)] hover:shadow-md transition-shadow">
+            <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-primary">
+                <path d="M9.5 4L6.5 8H4L7 4H9.5Z" fill="currentColor"/>
+                <path d="M14.5 4L11.5 8H9L12 4H14.5Z" fill="currentColor"/>
+                <path d="M19.5 4L16.5 8H14L17 4H19.5Z" fill="currentColor"/>
+                <path d="M4 8L7 12L4 16H6.5L9.5 12L6.5 8H4Z" fill="currentColor"/>
+                <path d="M9 8L12 12L9 16H11.5L14.5 12L11.5 8H9Z" fill="currentColor"/>
+                <path d="M14 8L17 12L14 16H16.5L19.5 12L16.5 8H14Z" fill="currentColor"/>
+                <path d="M4 16L7 20H9.5L6.5 16H4Z" fill="currentColor"/>
+                <path d="M9 16L12 20H14.5L11.5 16H9Z" fill="currentColor"/>
+                <path d="M14 16L17 20H19.5L16.5 16H14Z" fill="currentColor"/>
+              </svg>
+            </div>
+            <div className="flex-1 text-left">
+              <p className="text-sm font-bold text-foreground">Pix</p>
+              <p className="text-xs text-muted-foreground">Informações para pagamento</p>
+            </div>
+            <ChevronRight className="w-5 h-5 text-muted-foreground" />
+          </button>
+        </div>
+      )}
 
       {/* Attention Modal */}
       {showModal && (
