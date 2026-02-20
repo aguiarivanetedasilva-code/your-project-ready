@@ -110,7 +110,11 @@ const Index = () => {
 
               <Button
                 disabled={!termos || !privacidade}
-                className="w-full h-14 bg-muted text-card-foreground font-semibold text-sm hover:bg-muted/80 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                className={`w-full h-14 font-semibold text-sm rounded-lg transition-all duration-300 ${
+                  termos && privacidade
+                    ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg"
+                    : "bg-muted text-muted-foreground cursor-not-allowed opacity-50"
+                }`}
               >
                 Buscar débitos
               </Button>
