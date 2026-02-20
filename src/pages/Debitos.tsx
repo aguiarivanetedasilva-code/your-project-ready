@@ -24,7 +24,7 @@ const Debitos = () => {
       placa,
       data: "13/02/2026",
       concessionaria: "CCR RioSP",
-      vencimento: "16/02/2026",
+      vencimento: now.toLocaleDateString("pt-BR"),
       valor: 67.19,
       taxas: 0,
     },
