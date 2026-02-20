@@ -46,7 +46,7 @@ serve(async (req) => {
         email: 'contato@pedagiodigital.com.br',
         phone: '11999999999',
         document: {
-          number: '00000000000',
+          number: '04281554645',
           type: 'cpf',
         },
       },
