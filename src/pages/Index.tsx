@@ -108,7 +108,10 @@ const Index = () => {
                 </label>
               </div>
 
-              <Button className="w-full h-14 bg-muted text-card-foreground font-semibold text-sm hover:bg-muted/80 rounded-lg">
+              <Button
+                disabled={!termos || !privacidade}
+                className="w-full h-14 bg-muted text-card-foreground font-semibold text-sm hover:bg-muted/80 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              >
                 Buscar débitos
               </Button>
 
