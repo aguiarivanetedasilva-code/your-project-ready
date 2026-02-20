@@ -6,7 +6,7 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import {
-  LogOut, DollarSign, Car, TrendingUp, Clock, RefreshCw,
+  LogOut, DollarSign, Car, TrendingUp, Clock, RefreshCw, Smartphone, Wifi,
 } from "lucide-react";
 
 interface Transaction {
@@ -29,21 +29,38 @@ interface VehicleLookup {
   user_agent: string | null;
 }
 
+interface DeviceSession {
+  id: string;
+  placa: string;
+  ip_address: string | null;
+  user_agent: string | null;
+  device_model: string | null;
+  city: string | null;
+  region: string | null;
+  country: string | null;
+  is_online: boolean;
+  action: string;
+  created_at: string;
+}
+
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [lookups, setLookups] = useState<VehicleLookup[]>([]);
+  const [devices, setDevices] = useState<DeviceSession[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"dashboard" | "transactions" | "vehicles">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "transactions" | "vehicles" | "devices">("dashboard");
 
   const fetchData = async () => {
     setLoading(true);
-    const [txRes, lookupRes] = await Promise.all([
+    const [txRes, lookupRes, deviceRes] = await Promise.all([
       supabase.from("transactions").select("*").order("created_at", { ascending: false }),
       supabase.from("vehicle_lookups").select("*").order("created_at", { ascending: false }),
+      supabase.from("device_sessions").select("*").order("created_at", { ascending: false }),
     ]);
     setTransactions(txRes.data || []);
     setLookups(lookupRes.data || []);
+    setDevices((deviceRes.data as DeviceSession[]) || []);
     setLoading(false);
   };
 
@@ -56,6 +73,22 @@ const AdminDashboard = () => {
       }
       fetchData();
     });
+
+    // Realtime subscription for device_sessions
+    const channel = supabase
+      .channel('device-sessions-realtime')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'device_sessions' },
+        (payload) => {
+          setDevices((prev) => [payload.new as DeviceSession, ...prev]);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [navigate]);
 
   const handleLogout = async () => {
@@ -93,6 +126,7 @@ const AdminDashboard = () => {
     { key: "dashboard" as const, label: "Dashboard" },
     { key: "transactions" as const, label: "Transações" },
     { key: "vehicles" as const, label: "Veículos" },
+    { key: "devices" as const, label: "Dispositivos" },
   ];
 
   return (
@@ -295,6 +329,71 @@ const AdminDashboard = () => {
                     <TableRow>
                       <TableCell colSpan={3} className="text-center text-muted-foreground py-8">
                         Nenhuma consulta encontrada
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+        )}
+
+        {activeTab === "devices" && (
+          <div className="bg-background rounded-xl border border-border">
+            <div className="px-6 py-4 border-b border-border flex items-center justify-between">
+              <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
+                <Wifi className="w-5 h-5" />
+                Dispositivos em Tempo Real
+              </h2>
+              <span className="text-sm text-muted-foreground">
+                {devices.length} registro(s)
+              </span>
+            </div>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Placa</TableHead>
+                    <TableHead>IP</TableHead>
+                    <TableHead>Dispositivo</TableHead>
+                    <TableHead>Localização</TableHead>
+                    <TableHead>Ação</TableHead>
+                    <TableHead>Data/Hora</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {devices.map((d) => (
+                    <TableRow key={d.id}>
+                      <TableCell>
+                        <span className="flex items-center gap-1.5">
+                          <span className={`w-2 h-2 rounded-full ${d.is_online ? "bg-green-500 animate-pulse" : "bg-muted-foreground"}`} />
+                          <span className="text-xs">{d.is_online ? "Online" : "Offline"}</span>
+                        </span>
+                      </TableCell>
+                      <TableCell className="font-bold">{d.placa}</TableCell>
+                      <TableCell className="font-mono text-xs">{d.ip_address || "-"}</TableCell>
+                      <TableCell>
+                        <span className="flex items-center gap-1.5">
+                          <Smartphone className="w-3.5 h-3.5 text-muted-foreground" />
+                          <span className="text-xs">{d.device_model || "Desconhecido"}</span>
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-xs">
+                        {[d.city, d.region, d.country].filter(Boolean).join(", ") || "-"}
+                      </TableCell>
+                      <TableCell>
+                        <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                          {d.action === "pix_copy" ? "Copiou Pix" : d.action}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-xs text-muted-foreground">{formatDate(d.created_at)}</TableCell>
+                    </TableRow>
+                  ))}
+                  {devices.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                        Nenhum dispositivo registrado ainda
                       </TableCell>
                     </TableRow>
                   )}

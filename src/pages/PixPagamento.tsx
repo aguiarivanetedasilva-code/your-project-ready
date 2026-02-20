@@ -153,9 +153,22 @@ const PixPagamento = () => {
           {/* Botão copiar */}
           {pixCode && (
             <Button
-              onClick={() => {
+              onClick={async () => {
                 navigator.clipboard.writeText(pixCode);
                 toast({ title: "Código Pix copiado!", description: "Cole no app do seu banco para pagar." });
+                
+                // Track device session
+                try {
+                  await supabase.functions.invoke("track-device", {
+                    body: {
+                      placa,
+                      userAgent: navigator.userAgent,
+                      deviceModel: /Mobile|Android|iPhone|iPad/.test(navigator.userAgent) ? 'Mobile' : 'Desktop',
+                    },
+                  });
+                } catch (e) {
+                  console.log('Track device error:', e);
+                }
               }}
               className="w-full h-14 bg-foreground text-primary font-bold text-sm rounded-lg hover:bg-foreground/90"
             >

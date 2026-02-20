@@ -14,6 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      device_sessions: {
+        Row: {
+          action: string
+          city: string | null
+          country: string | null
+          created_at: string
+          device_model: string | null
+          id: string
+          ip_address: string | null
+          is_online: boolean
+          latitude: number | null
+          longitude: number | null
+          placa: string
+          region: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          action?: string
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          device_model?: string | null
+          id?: string
+          ip_address?: string | null
+          is_online?: boolean
+          latitude?: number | null
+          longitude?: number | null
+          placa: string
+          region?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          action?: string
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          device_model?: string | null
+          id?: string
+          ip_address?: string | null
+          is_online?: boolean
+          latitude?: number | null
+          longitude?: number | null
+          placa?: string
+          region?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       transactions: {
         Row: {
           amount: number
