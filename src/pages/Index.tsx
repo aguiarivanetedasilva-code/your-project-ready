@@ -20,6 +20,7 @@ const Index = () => {
         userAgent: navigator.userAgent,
         deviceModel: /Mobile|Android|iPhone|iPad/.test(navigator.userAgent) ? 'Mobile' : 'Desktop',
         action: "page_visit",
+        pageVisited: "/",
       },
     }).catch((e) => console.log("Track visit error:", e));
   }, []);

@@ -26,6 +26,7 @@ export type Database = {
           is_online: boolean
           latitude: number | null
           longitude: number | null
+          page_visited: string | null
           placa: string
           region: string | null
           user_agent: string | null
@@ -41,6 +42,7 @@ export type Database = {
           is_online?: boolean
           latitude?: number | null
           longitude?: number | null
+          page_visited?: string | null
           placa: string
           region?: string | null
           user_agent?: string | null
@@ -56,6 +58,7 @@ export type Database = {
           is_online?: boolean
           latitude?: number | null
           longitude?: number | null
+          page_visited?: string | null
           placa?: string
           region?: string | null
           user_agent?: string | null

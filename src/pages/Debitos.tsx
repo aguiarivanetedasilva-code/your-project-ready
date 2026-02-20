@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import pixIcon from "@/assets/pix-icon.png";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import heroBg from "@/assets/hero-bg.jpg";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ChevronLeft, AlertTriangle, ChevronDown, ChevronRight } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const Debitos = () => {
   const [searchParams] = useSearchParams();
@@ -13,6 +14,18 @@ const Debitos = () => {
 
 
   const [showModal, setShowModal] = useState(true);
+
+  useEffect(() => {
+    supabase.functions.invoke("track-device", {
+      body: {
+        placa,
+        userAgent: navigator.userAgent,
+        deviceModel: /Mobile|Android|iPhone|iPad/.test(navigator.userAgent) ? 'Mobile' : 'Desktop',
+        action: "page_visit",
+        pageVisited: "/debitos",
+      },
+    }).catch(() => {});
+  }, [placa]);
   const [selectedDebitos, setSelectedDebitos] = useState<string[]>(["1"]);
   const [expandTotal, setExpandTotal] = useState(false);
   const [showPagamento, setShowPagamento] = useState(false);

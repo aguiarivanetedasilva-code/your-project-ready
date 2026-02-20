@@ -6,8 +6,9 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import {
-  LogOut, DollarSign, Car, TrendingUp, Clock, RefreshCw, Smartphone, Wifi,
+  LogOut, DollarSign, Car, TrendingUp, Clock, RefreshCw, Smartphone, Wifi, MapPin,
 } from "lucide-react";
+import DeviceMap from "@/components/DeviceMap";
 
 interface Transaction {
   id: string;
@@ -38,8 +39,11 @@ interface DeviceSession {
   city: string | null;
   region: string | null;
   country: string | null;
+  latitude: number | null;
+  longitude: number | null;
   is_online: boolean;
   action: string;
+  page_visited: string | null;
   created_at: string;
 }
 
@@ -365,66 +369,84 @@ const AdminDashboard = () => {
         )}
 
         {activeTab === "devices" && (
-          <div className="bg-background rounded-xl border border-border">
-            <div className="px-6 py-4 border-b border-border flex items-center justify-between">
-              <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
-                <Wifi className="w-5 h-5" />
-                Dispositivos em Tempo Real
-              </h2>
-              <span className="text-sm text-muted-foreground">
-                {devices.length} registro(s)
-              </span>
+          <div className="space-y-6">
+            {/* Map */}
+            <div className="bg-background rounded-xl border border-border overflow-hidden">
+              <div className="px-6 py-4 border-b border-border flex items-center gap-2">
+                <MapPin className="w-5 h-5" />
+                <h2 className="text-lg font-bold text-foreground">Mapa de Clientes</h2>
+              </div>
+              <DeviceMap devices={devices} />
             </div>
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Placa</TableHead>
-                    <TableHead>IP</TableHead>
-                    <TableHead>Dispositivo</TableHead>
-                    <TableHead>Localização</TableHead>
-                    <TableHead>Ação</TableHead>
-                    <TableHead>Data/Hora</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {devices.map((d) => (
-                    <TableRow key={d.id}>
-                      <TableCell>
-                        <span className="flex items-center gap-1.5">
-                          <span className={`w-2 h-2 rounded-full ${d.is_online ? "bg-green-500 animate-pulse" : "bg-muted-foreground"}`} />
-                          <span className="text-xs">{d.is_online ? "Online" : "Offline"}</span>
-                        </span>
-                      </TableCell>
-                      <TableCell className="font-bold">{d.placa}</TableCell>
-                      <TableCell className="font-mono text-xs">{d.ip_address || "-"}</TableCell>
-                      <TableCell>
-                        <span className="flex items-center gap-1.5">
-                          <Smartphone className="w-3.5 h-3.5 text-muted-foreground" />
-                          <span className="text-xs">{d.device_model || "Desconhecido"}</span>
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-xs">
-                        {[d.city, d.region, d.country].filter(Boolean).join(", ") || "-"}
-                      </TableCell>
-                      <TableCell>
-                        <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                          {d.action === "pix_copy" ? "Copiou Pix" : d.action}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-xs text-muted-foreground">{formatDate(d.created_at)}</TableCell>
-                    </TableRow>
-                  ))}
-                  {devices.length === 0 && (
+
+            {/* Table */}
+            <div className="bg-background rounded-xl border border-border">
+              <div className="px-6 py-4 border-b border-border flex items-center justify-between">
+                <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
+                  <Wifi className="w-5 h-5" />
+                  Dispositivos em Tempo Real
+                </h2>
+                <span className="text-sm text-muted-foreground">
+                  {devices.length} registro(s)
+                </span>
+              </div>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
                     <TableRow>
-                      <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
-                        Nenhum dispositivo registrado ainda
-                      </TableCell>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Placa</TableHead>
+                      <TableHead>IP</TableHead>
+                      <TableHead>Dispositivo</TableHead>
+                      <TableHead>Localização</TableHead>
+                      <TableHead>Página</TableHead>
+                      <TableHead>Ação</TableHead>
+                      <TableHead>Data/Hora</TableHead>
                     </TableRow>
-                  )}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {devices.map((d) => (
+                      <TableRow key={d.id}>
+                        <TableCell>
+                          <span className="flex items-center gap-1.5">
+                            <span className={`w-2 h-2 rounded-full ${d.is_online ? "bg-green-500 animate-pulse" : "bg-muted-foreground"}`} />
+                            <span className="text-xs">{d.is_online ? "Online" : "Offline"}</span>
+                          </span>
+                        </TableCell>
+                        <TableCell className="font-bold">{d.placa}</TableCell>
+                        <TableCell className="font-mono text-xs">{d.ip_address || "-"}</TableCell>
+                        <TableCell>
+                          <span className="flex items-center gap-1.5">
+                            <Smartphone className="w-3.5 h-3.5 text-muted-foreground" />
+                            <span className="text-xs">{d.device_model || "Desconhecido"}</span>
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-xs">
+                          {[d.city, d.region, d.country].filter(Boolean).join(", ") || "-"}
+                        </TableCell>
+                        <TableCell className="text-xs font-mono">
+                          {d.page_visited || "/"}
+                        </TableCell>
+                        <TableCell>
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            d.action === "pix_copy" ? "bg-green-100 text-green-800" : "bg-blue-100 text-blue-800"
+                          }`}>
+                            {d.action === "pix_copy" ? "Copiou Pix" : "Visita"}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-xs text-muted-foreground">{formatDate(d.created_at)}</TableCell>
+                      </TableRow>
+                    ))}
+                    {devices.length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
+                          Nenhum dispositivo registrado ainda
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
             </div>
           </div>
         )}
