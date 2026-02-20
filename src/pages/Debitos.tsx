@@ -11,7 +11,7 @@ const Debitos = () => {
   const placa = searchParams.get("placa") || "ABC1D23";
 
   const [showModal, setShowModal] = useState(true);
-  const [selectedDebitos, setSelectedDebitos] = useState<string[]>([]);
+  const [selectedDebitos, setSelectedDebitos] = useState<string[]>(["1"]);
   const [expandTotal, setExpandTotal] = useState(false);
 
   const now = new Date();
