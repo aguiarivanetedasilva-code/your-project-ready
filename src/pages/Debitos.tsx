@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import pixIcon from "@/assets/pix-icon.png";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import heroBg from "@/assets/hero-bg.jpg";
 import { Button } from "@/components/ui/button";
@@ -186,16 +187,7 @@ const Debitos = () => {
           <p className="text-sm text-muted-foreground mb-6">Selecione abaixo como quer fazer o pagamento</p>
 
           <button className="w-full flex items-center gap-4 bg-background rounded-xl p-4 shadow-[0_2px_20px_-4px_rgba(0,0,0,0.1)] hover:shadow-md transition-shadow">
-            <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center">
-              <svg width="22" height="22" viewBox="0 0 100 100">
-                <g fill="hsl(var(--foreground))">
-                  <path d="M64.5 31.8c-2.6 0-5 1-6.8 2.8L50 42.3l-7.7-7.7c-1.8-1.8-4.3-2.8-6.8-2.8h-3.7L44 44c2.4 2.4 6.3 2.4 8.7 0h0l0 0 12.2-12.2h-0.4z"/>
-                  <path d="M35.5 68.2c2.6 0 5-1 6.8-2.8L50 57.7l7.7 7.7c1.8 1.8 4.3 2.8 6.8 2.8h3.7L56 56c-2.4-2.4-6.3-2.4-8.7 0h0l0 0-12.2 12.2h0.4z"/>
-                  <path d="M81.3 43.2l-8.1-8.1c-.5-.5-1.1-.5-1.6 0h0L60.3 46.4c-1.2 1.2-1.2 3.1 0 4.3l11.3 11.3c.5.5 1.1.5 1.6 0l8.1-8.1c3.1-3.1 3.1-7.5 0-10.7z"/>
-                  <path d="M18.7 43.2c-3.1 3.1-3.1 7.5 0 10.7l8.1 8.1c.5.5 1.1.5 1.6 0L39.7 50.7c1.2-1.2 1.2-3.1 0-4.3L28.4 35.1c-.5-.5-1.1-.5-1.6 0l-8.1 8.1z"/>
-                </g>
-              </svg>
-            </div>
+            <img src={pixIcon} alt="Pix" className="w-12 h-12 rounded-xl" />
             <div className="flex-1 text-left">
               <p className="text-sm font-bold text-foreground">Pix</p>
               <p className="text-xs text-muted-foreground">Informações para pagamento</p>
