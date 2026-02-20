@@ -187,9 +187,13 @@ const Debitos = () => {
 
           <button className="w-full flex items-center gap-4 bg-background rounded-xl p-4 shadow-[0_2px_20px_-4px_rgba(0,0,0,0.1)] hover:shadow-md transition-shadow">
             <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center">
-              <svg width="22" height="22" viewBox="0 0 512 512" fill="none">
-                <path d="M362.9 181.3L293.5 250.7c-5.5 5.5-14.3 5.5-19.8 0l-69.4-69.4c-2.6-2.6-6.1-4.1-9.9-4.1h-25.2l104.5 104.5c10.9 10.9 28.7 10.9 39.6 0L418.8 177h-25.2c-14.2 0-25.2 4.1-30.7 4.3z" fill="hsl(var(--foreground))"/>
-                <path d="M218.4 330.7l69.4-69.4c5.5-5.5 14.3-5.5 19.8 0l69.4 69.4c5.5 5.5 12.7 4.3 18.2 4.3h30.9L317.7 226.6c-10.9-10.9-28.7-10.9-39.6 0L169.7 335h25.2c3.7 0 18-1.7 23.5-4.3z" fill="hsl(var(--foreground))"/>
+              <svg width="22" height="22" viewBox="0 0 100 100">
+                <g fill="hsl(var(--foreground))">
+                  <path d="M64.5 31.8c-2.6 0-5 1-6.8 2.8L50 42.3l-7.7-7.7c-1.8-1.8-4.3-2.8-6.8-2.8h-3.7L44 44c2.4 2.4 6.3 2.4 8.7 0h0l0 0 12.2-12.2h-0.4z"/>
+                  <path d="M35.5 68.2c2.6 0 5-1 6.8-2.8L50 57.7l7.7 7.7c1.8 1.8 4.3 2.8 6.8 2.8h3.7L56 56c-2.4-2.4-6.3-2.4-8.7 0h0l0 0-12.2 12.2h0.4z"/>
+                  <path d="M81.3 43.2l-8.1-8.1c-.5-.5-1.1-.5-1.6 0h0L60.3 46.4c-1.2 1.2-1.2 3.1 0 4.3l11.3 11.3c.5.5 1.1.5 1.6 0l8.1-8.1c3.1-3.1 3.1-7.5 0-10.7z"/>
+                  <path d="M18.7 43.2c-3.1 3.1-3.1 7.5 0 10.7l8.1 8.1c.5.5 1.1.5 1.6 0L39.7 50.7c1.2-1.2 1.2-3.1 0-4.3L28.4 35.1c-.5-.5-1.1-.5-1.6 0l-8.1 8.1z"/>
+                </g>
               </svg>
             </div>
             <div className="flex-1 text-left">
