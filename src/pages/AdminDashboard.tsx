@@ -100,6 +100,11 @@ const AdminDashboard = () => {
   const paidTransactions = transactions.filter((t) => t.status === "PAID");
   const pendingTransactions = transactions.filter((t) => t.status === "PENDING");
   const conversionRate = transactions.length > 0 ? (paidTransactions.length / transactions.length) * 100 : 0;
+  const totalVisits = devices.filter((d) => d.action === "page_visit").length;
+  const onlineDevices = devices.filter((d) => {
+    const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000);
+    return new Date(d.created_at) > fiveMinAgo;
+  }).length;
 
   const formatCurrency = (cents: number) => {
     return `R$ ${(cents / 100).toFixed(2).replace(".", ",")}`;
@@ -168,7 +173,7 @@ const AdminDashboard = () => {
         {activeTab === "dashboard" && (
           <>
             {/* Metrics Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
               <div className="bg-background rounded-xl border border-border p-6">
                 <div className="flex items-center gap-3 mb-2">
                   <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center">
@@ -207,6 +212,27 @@ const AdminDashboard = () => {
                   <span className="text-sm text-muted-foreground">Consultas</span>
                 </div>
                 <p className="text-2xl font-bold text-foreground">{lookups.length}</p>
+              </div>
+
+              <div className="bg-background rounded-xl border border-border p-6">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center">
+                    <TrendingUp className="w-5 h-5 text-indigo-600" />
+                  </div>
+                  <span className="text-sm text-muted-foreground">Visitas</span>
+                </div>
+                <p className="text-2xl font-bold text-foreground">{totalVisits}</p>
+              </div>
+
+              <div className="bg-background rounded-xl border border-border p-6">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center">
+                    <Wifi className="w-5 h-5 text-emerald-600 animate-pulse" />
+                  </div>
+                  <span className="text-sm text-muted-foreground">Online Agora</span>
+                </div>
+                <p className="text-2xl font-bold text-foreground">{onlineDevices}</p>
+                <p className="text-xs text-muted-foreground mt-1">Últimos 5 minutos</p>
               </div>
             </div>
 

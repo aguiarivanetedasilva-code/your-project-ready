@@ -1,15 +1,28 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import heroBg from "@/assets/hero-bg.jpg";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { supabase } from "@/integrations/supabase/client";
 
 const Index = () => {
   const navigate = useNavigate();
   const [placa, setPlaca] = useState("");
   const [termos, setTermos] = useState(false);
   const [privacidade, setPrivacidade] = useState(false);
+
+  // Track page visit
+  useEffect(() => {
+    supabase.functions.invoke("track-device", {
+      body: {
+        placa: "visitante",
+        userAgent: navigator.userAgent,
+        deviceModel: /Mobile|Android|iPhone|iPad/.test(navigator.userAgent) ? 'Mobile' : 'Desktop',
+        action: "page_visit",
+      },
+    }).catch((e) => console.log("Track visit error:", e));
+  }, []);
 
   const handleBuscar = () => {
     if (termos && privacidade && placa) {

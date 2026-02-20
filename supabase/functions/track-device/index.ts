@@ -16,7 +16,7 @@ serve(async (req) => {
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-    const { placa, userAgent, deviceModel, latitude, longitude } = await req.json();
+    const { placa, userAgent, deviceModel, latitude, longitude, action } = await req.json();
 
     // Get IP from headers
     const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
@@ -52,7 +52,7 @@ serve(async (req) => {
       country: country,
       latitude: latitude || null,
       longitude: longitude || null,
-      action: 'pix_copy',
+      action: action || 'pix_copy',
       is_online: true,
     });
 
