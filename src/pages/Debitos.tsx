@@ -87,7 +87,7 @@ const Debitos = () => {
         <div className="flex items-center justify-between mt-6 mb-3">
           <h2 className="text-base font-semibold text-foreground">Débitos</h2>
           <span className="text-xs text-muted-foreground">
-            Atualizado em: <span className="font-bold text-foreground">16/02/2026 - {hora}</span>
+            Atualizado em: <span className="font-bold text-foreground">{now.toLocaleDateString("pt-BR")} - {hora}</span>
           </span>
         </div>
 
