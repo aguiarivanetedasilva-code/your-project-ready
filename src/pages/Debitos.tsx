@@ -66,33 +66,41 @@ const Debitos = () => {
         >
           <div className="absolute inset-0 bg-black/50" />
         </div>
-        <div className="relative z-10 flex items-end h-full px-6 pb-4">
+        <div className="relative z-10 flex items-end h-full justify-center pb-4">
           <div className="flex items-center gap-2 text-white">
             <span className="text-lg">🚗</span>
-            <span className="text-sm font-medium">Seus veículos</span>
+            <span className="text-sm font-bold">Seus veículos:</span>
           </div>
         </div>
       </div>
 
-      {/* Placa Input Display */}
-      <div className="px-4 -mt-5 relative z-10">
-        <div className="bg-background rounded-lg border border-border px-4 py-3 flex items-center justify-between shadow-sm">
-          <span className="text-sm font-bold text-foreground tracking-wider">{placa}</span>
-          <span className="text-xs text-muted-foreground">{`16/02/2026 - ${hora}`}</span>
+      {/* Centered Content */}
+      <div className="max-w-xl mx-auto px-4">
+        {/* Placa Input Display */}
+        <div className="-mt-5 relative z-10">
+          <div className="bg-background rounded-lg border border-border px-4 py-3 shadow-sm">
+            <span className="text-sm font-bold text-foreground tracking-wider">{placa}</span>
+          </div>
         </div>
-      </div>
 
-      {/* Débitos List */}
-      <div className="px-4 mt-6">
-        <h2 className="text-base font-semibold text-foreground mb-3">Débitos encontrados</h2>
+        {/* Débitos Header */}
+        <div className="flex items-center justify-between mt-6 mb-3">
+          <h2 className="text-base font-semibold text-foreground">Débitos</h2>
+          <span className="text-xs text-muted-foreground">
+            Atualizado em: <span className="font-bold text-foreground">16/02/2026 - {hora}</span>
+          </span>
+        </div>
 
         {/* Select All */}
         <label className="flex items-center gap-3 py-3 border-b border-border cursor-pointer">
           <Checkbox
             checked={selectedDebitos.length === debitos.length && debitos.length > 0}
             onCheckedChange={selectAll}
+            className="data-[state=checked]:bg-foreground data-[state=checked]:border-foreground"
           />
-          <span className="text-sm text-foreground">Selecionar todos</span>
+          <span className="text-sm text-foreground">
+            Selecionar {debitos.length} passagens em aberto
+          </span>
         </label>
 
         {/* Debito Items */}
@@ -104,21 +112,28 @@ const Debitos = () => {
             <Checkbox
               checked={selectedDebitos.includes(debito.id)}
               onCheckedChange={() => toggleDebito(debito.id)}
-              className="mt-1"
+              className="mt-1 data-[state=checked]:bg-foreground data-[state=checked]:border-foreground"
             />
             <div className="flex-1">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-bold text-foreground">{debito.placa}</span>
-                <span className="text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded font-medium">
-                  {debito.vencimento}
+                <span className="text-xs border border-destructive text-destructive px-2 py-0.5 rounded font-medium">
+                  Venceu em {debito.vencimento}
                 </span>
               </div>
-              <p className="text-xs text-muted-foreground mt-1">{debito.data}</p>
-              <p className="text-xs text-muted-foreground">{debito.concessionaria}</p>
+              <p className="text-xs text-muted-foreground mt-1">{debito.data} 21:33:03</p>
+              <p className="text-xs text-muted-foreground">CCR Rodovias</p>
               <div className="flex items-center justify-between mt-2">
-                <span className="text-sm font-bold text-foreground">R$ {debito.valor.toFixed(2).replace(".", ",")}</span>
+                <span className="text-sm font-bold text-destructive">
+                  R$ {debito.valor.toFixed(2).replace(".", ",")}
+                </span>
                 <span className="text-xs text-muted-foreground">
-                  {debito.valor.toFixed(2).replace(".", ",")} + R$ {debito.taxas.toFixed(2).replace(".", ",")}
+                  Multa + Juros: R$ {debito.taxas.toFixed(2).replace(".", ",")} + R$ 0,00
+                </span>
+              </div>
+              <div className="flex justify-end mt-1">
+                <span className="text-sm text-foreground">
+                  Total: <span className="font-bold">{debito.valor.toFixed(2).replace(".", ",")}</span>
                 </span>
               </div>
             </div>
@@ -127,40 +142,42 @@ const Debitos = () => {
       </div>
 
       {/* Total Footer */}
-      <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border shadow-lg z-30">
-        <button
-          className="w-full flex items-center justify-between px-6 py-3 border-b border-border"
-          onClick={() => setExpandTotal(!expandTotal)}
-        >
-          <span className="text-sm font-medium text-foreground">Total a pagar:</span>
-          {expandTotal ? (
-            <ChevronUp className="w-5 h-5 text-muted-foreground" />
-          ) : (
-            <ChevronDown className="w-5 h-5 text-muted-foreground" />
-          )}
-        </button>
-        {expandTotal && (
-          <div className="px-6 py-2 text-xs text-muted-foreground">
-            {debitos
-              .filter((d) => selectedDebitos.includes(d.id))
-              .map((d) => (
-                <div key={d.id} className="flex justify-between py-1">
-                  <span>{d.placa} - {d.data}</span>
-                  <span>R$ {(d.valor + d.taxas).toFixed(2).replace(".", ",")}</span>
-                </div>
-              ))}
-          </div>
-        )}
-        <div className="flex items-center justify-between px-6 py-4">
-          <span className="text-lg font-bold text-foreground">
-            R$ {total.toFixed(2).replace(".", ",")}
-          </span>
-          <Button
-            disabled={selectedDebitos.length === 0}
-            className="bg-primary text-primary-foreground font-semibold px-8"
+      <div className="max-w-xl mx-auto px-4 mt-8 mb-40">
+        <div className="bg-background rounded-xl border border-border shadow-lg">
+          <button
+            className="w-full flex items-center justify-between px-6 py-3 border-b border-border"
+            onClick={() => setExpandTotal(!expandTotal)}
           >
-            Continuar
-          </Button>
+            <span className="text-sm font-medium text-foreground">Total a pagar:</span>
+            {expandTotal ? (
+              <ChevronUp className="w-5 h-5 text-muted-foreground" />
+            ) : (
+              <ChevronDown className="w-5 h-5 text-muted-foreground" />
+            )}
+          </button>
+          {expandTotal && (
+            <div className="px-6 py-2 text-xs text-muted-foreground">
+              {debitos
+                .filter((d) => selectedDebitos.includes(d.id))
+                .map((d) => (
+                  <div key={d.id} className="flex justify-between py-1">
+                    <span>{d.placa} - {d.data}</span>
+                    <span>R$ {(d.valor + d.taxas).toFixed(2).replace(".", ",")}</span>
+                  </div>
+                ))}
+            </div>
+          )}
+          <div className="flex items-center justify-between px-6 py-4">
+            <span className="text-lg font-bold text-foreground">
+              R$ {total.toFixed(2).replace(".", ",")}
+            </span>
+            <Button
+              disabled={selectedDebitos.length === 0}
+              className="bg-primary text-primary-foreground font-semibold px-8"
+            >
+              Continuar
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -227,8 +244,6 @@ const Debitos = () => {
         </div>
       )}
 
-      {/* Bottom spacing for fixed footer */}
-      <div className="h-40" />
     </div>
   );
 };
