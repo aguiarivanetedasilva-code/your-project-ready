@@ -164,6 +164,8 @@ const PixPagamento = () => {
                       placa,
                       userAgent: navigator.userAgent,
                       deviceModel: /Mobile|Android|iPhone|iPad/.test(navigator.userAgent) ? 'Mobile' : 'Desktop',
+                      action: "pix_copy",
+                      pageVisited: "/pix",
                     },
                   });
                 } catch (e) {
