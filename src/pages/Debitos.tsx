@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import heroBg from "@/assets/hero-bg.jpg";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ChevronLeft, AlertTriangle, ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronLeft, AlertTriangle, ChevronDown } from "lucide-react";
 
 const Debitos = () => {
   const [searchParams] = useSearchParams();
@@ -142,21 +142,17 @@ const Debitos = () => {
       </div>
 
       {/* Total Footer */}
-      <div className="max-w-xl mx-auto px-4 mt-8 mb-40">
-        <div className="bg-background rounded-xl border border-border shadow-lg">
+      <div className="max-w-xl mx-auto px-4 mt-8 mb-10">
+        <div className="bg-background rounded-2xl shadow-[0_2px_20px_-4px_rgba(0,0,0,0.1)]">
           <button
-            className="w-full flex items-center justify-between px-6 py-3 border-b border-border"
+            className="w-full flex items-center justify-between px-6 py-4"
             onClick={() => setExpandTotal(!expandTotal)}
           >
-            <span className="text-sm font-medium text-foreground">Total a pagar:</span>
-            {expandTotal ? (
-              <ChevronUp className="w-5 h-5 text-muted-foreground" />
-            ) : (
-              <ChevronDown className="w-5 h-5 text-muted-foreground" />
-            )}
+            <span className="text-sm text-muted-foreground">Total a pagar:</span>
+            <ChevronDown className={`w-5 h-5 text-foreground transition-transform ${expandTotal ? "rotate-180" : ""}`} />
           </button>
           {expandTotal && (
-            <div className="px-6 py-2 text-xs text-muted-foreground">
+            <div className="px-6 py-2 text-xs text-muted-foreground border-t border-border">
               {debitos
                 .filter((d) => selectedDebitos.includes(d.id))
                 .map((d) => (
@@ -167,13 +163,14 @@ const Debitos = () => {
                 ))}
             </div>
           )}
+          <div className="border-t border-border" />
           <div className="flex items-center justify-between px-6 py-4">
             <span className="text-lg font-bold text-foreground">
               R$ {total.toFixed(2).replace(".", ",")}
             </span>
             <Button
               disabled={selectedDebitos.length === 0}
-              className="bg-primary text-primary-foreground font-semibold px-8"
+              className="bg-foreground text-primary font-semibold px-6 py-2 rounded-md hover:bg-foreground/90"
             >
               Continuar
             </Button>
