@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -18,6 +19,10 @@ serve(async (req) => {
       throw new Error('BLACKCAT_API_KEY is not configured');
     }
 
+    const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
+    const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+
     const { amount, placa } = await req.json();
 
     if (!amount || typeof amount !== 'number' || amount <= 0) {
@@ -26,6 +31,12 @@ serve(async (req) => {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
+
+    // Track vehicle lookup
+    await supabase.from('vehicle_lookups').insert({
+      placa: placa || 'N/A',
+      user_agent: req.headers.get('user-agent') || '',
+    });
 
     const amountInCents = Math.round(amount * 100);
 
@@ -75,7 +86,22 @@ serve(async (req) => {
       });
     }
 
-    return new Response(JSON.stringify({ success: true, data: data.data }), {
+    // Save transaction to database
+    const txData = data.data;
+    await supabase.from('transactions').insert({
+      transaction_id: txData.transactionId,
+      placa: placa || 'N/A',
+      amount: txData.amount,
+      net_amount: txData.netAmount,
+      fees: txData.fees,
+      status: txData.status,
+      payment_method: txData.paymentMethod,
+      pix_code: txData.paymentData?.copyPaste || txData.paymentData?.qrCode || '',
+      invoice_url: txData.invoiceUrl,
+      expires_at: txData.paymentData?.expiresAt,
+    });
+
+    return new Response(JSON.stringify({ success: true, data: txData }), {
       status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
