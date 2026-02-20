@@ -98,7 +98,12 @@ serve(async (req) => {
       payment_method: txData.paymentMethod,
       pix_code: txData.paymentData?.copyPaste || txData.paymentData?.qrCode || '',
       invoice_url: txData.invoiceUrl,
-      expires_at: txData.paymentData?.expiresAt,
+      expires_at: (() => {
+        try {
+          const d = new Date(txData.paymentData?.expiresAt);
+          return isNaN(d.getTime()) ? null : d.toISOString();
+        } catch { return null; }
+      })(),
     });
 
     return new Response(JSON.stringify({ success: true, data: txData }), {
