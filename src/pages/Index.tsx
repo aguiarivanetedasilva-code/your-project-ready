@@ -1,13 +1,21 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import heroBg from "@/assets/hero-bg.jpg";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 
 const Index = () => {
+  const navigate = useNavigate();
   const [placa, setPlaca] = useState("");
   const [termos, setTermos] = useState(false);
   const [privacidade, setPrivacidade] = useState(false);
+
+  const handleBuscar = () => {
+    if (termos && privacidade && placa) {
+      navigate(`/debitos?placa=${encodeURIComponent(placa)}`);
+    }
+  };
 
   return (
     <div className="relative min-h-screen">
@@ -110,6 +118,7 @@ const Index = () => {
 
               <Button
                 disabled={!termos || !privacidade}
+                onClick={handleBuscar}
                 className={`w-full h-14 font-semibold text-sm rounded-lg transition-all duration-300 ${
                   termos && privacidade
                     ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg"
