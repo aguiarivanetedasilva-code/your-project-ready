@@ -108,18 +108,6 @@ const Index = () => {
                 </label>
               </div>
 
-              {/* reCAPTCHA mock */}
-              <div className="mb-7 border border-border rounded-md p-3 flex items-center justify-between bg-muted/50">
-                <div className="flex items-center gap-3">
-                  <Checkbox className="h-5 w-5" />
-                  <span className="text-sm text-card-foreground">Não sou um robô</span>
-                </div>
-                <div className="text-right">
-                  <div className="text-xs text-muted-foreground">reCAPTCHA</div>
-                  <div className="text-[10px] text-muted-foreground">Privacidade · Termos</div>
-                </div>
-              </div>
-
               <Button className="w-full h-14 bg-muted text-card-foreground font-semibold text-sm hover:bg-muted/80 rounded-lg">
                 Buscar débitos
               </Button>
