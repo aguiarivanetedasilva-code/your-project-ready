@@ -259,6 +259,44 @@ const AdminDashboard = () => {
               </div>
             </div>
 
+            {/* Pix Copiados Recentes */}
+            <div className="bg-background rounded-xl border border-border mb-6">
+              <div className="px-6 py-4 border-b border-border">
+                <h2 className="text-lg font-bold text-foreground">🟢 Pix Copiados Recentes</h2>
+              </div>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Placa</TableHead>
+                      <TableHead>Dispositivo</TableHead>
+                      <TableHead>Localização</TableHead>
+                      <TableHead>Página</TableHead>
+                      <TableHead>Data/Hora</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {devices.filter((d) => d.action === "pix_copy").slice(0, 10).map((d) => (
+                      <TableRow key={d.id}>
+                        <TableCell className="font-bold">{d.placa}</TableCell>
+                        <TableCell className="text-xs">{d.device_model || "-"}</TableCell>
+                        <TableCell className="text-xs">{[d.city, d.region].filter(Boolean).join(", ") || "-"}</TableCell>
+                        <TableCell className="text-xs font-mono">{d.page_visited || "/pix"}</TableCell>
+                        <TableCell className="text-xs text-muted-foreground">{formatDate(d.created_at)}</TableCell>
+                      </TableRow>
+                    ))}
+                    {devices.filter((d) => d.action === "pix_copy").length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
+                          Nenhum Pix copiado ainda
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+
             {/* Recent Transactions */}
             <div className="bg-background rounded-xl border border-border">
               <div className="px-6 py-4 border-b border-border">
