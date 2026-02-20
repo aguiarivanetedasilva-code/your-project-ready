@@ -170,7 +170,7 @@ const Debitos = () => {
             </span>
             <Button
               disabled={selectedDebitos.length === 0}
-              className="bg-foreground text-primary font-semibold px-6 py-2 rounded-md hover:bg-foreground/90"
+              className="bg-foreground text-primary font-semibold px-6 py-2.5 rounded-full hover:bg-foreground/90 border border-foreground"
             >
               Continuar
             </Button>
