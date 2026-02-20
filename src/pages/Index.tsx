@@ -63,8 +63,8 @@ const Index = () => {
             </div>
 
             {/* Right - Card */}
-            <div className="w-full max-w-md bg-card rounded-2xl p-8 shadow-2xl">
-              <p className="text-card-foreground text-lg mb-6">
+            <div className="w-full max-w-md bg-card rounded-2xl p-10 shadow-2xl">
+              <p className="text-card-foreground text-lg mb-8">
                 Um <span className="font-bold underline decoration-primary decoration-2 underline-offset-4">único</span>{" "}
                 <span className="font-bold underline decoration-primary decoration-2 underline-offset-4">lugar</span> para{" "}
                 <span className="font-bold underline decoration-primary decoration-2 underline-offset-4">acessar</span> e{" "}
@@ -75,10 +75,10 @@ const Index = () => {
                 placeholder="DIGITE SUA PLACA"
                 value={placa}
                 onChange={(e) => setPlaca(e.target.value.toUpperCase())}
-                className="mb-5 h-12 bg-muted border-0 text-sm placeholder:text-muted-foreground uppercase tracking-wider"
+                className="mb-7 h-14 bg-muted border-2 border-primary text-sm placeholder:text-muted-foreground uppercase tracking-wider rounded-lg"
               />
 
-              <div className="space-y-4 mb-6">
+              <div className="space-y-5 mb-8">
                 <label className="flex items-start gap-3 cursor-pointer">
                   <Checkbox
                     checked={termos}
@@ -109,11 +109,11 @@ const Index = () => {
                 </label>
               </div>
 
-              <Button className="w-full h-12 bg-secondary text-secondary-foreground font-semibold text-sm hover:bg-secondary/90 rounded-lg">
+              <Button className="w-full h-14 bg-secondary text-secondary-foreground font-semibold text-sm hover:bg-secondary/90 rounded-lg">
                 Buscar débitos
               </Button>
 
-              <div className="text-center mt-4">
+              <div className="text-center mt-6">
                 <a href="#" className="text-sm font-semibold text-card-foreground underline underline-offset-4 hover:text-primary transition-colors">
                   Começar agora
                 </a>
