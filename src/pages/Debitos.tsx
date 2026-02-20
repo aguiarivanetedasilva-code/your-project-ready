@@ -121,7 +121,7 @@ const Debitos = () => {
                   Venceu em {debito.vencimento}
                 </span>
               </div>
-              <p className="text-xs text-muted-foreground mt-1">{debito.data}</p>
+              
               <p className="text-xs text-muted-foreground">CCR Rodovias</p>
               <div className="flex items-center justify-between mt-2">
                 <span className="text-sm font-bold text-destructive">
