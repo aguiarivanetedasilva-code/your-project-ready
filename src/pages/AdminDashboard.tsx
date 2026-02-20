@@ -105,6 +105,7 @@ const AdminDashboard = () => {
   const pendingTransactions = transactions.filter((t) => t.status === "PENDING");
   const conversionRate = transactions.length > 0 ? (paidTransactions.length / transactions.length) * 100 : 0;
   const totalVisits = devices.filter((d) => d.action === "page_visit").length;
+  const totalPixCopies = devices.filter((d) => d.action === "pix_copy").length;
   const onlineDevices = devices.filter((d) => {
     const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000);
     return new Date(d.created_at) > fiveMinAgo;
@@ -237,6 +238,24 @@ const AdminDashboard = () => {
                 </div>
                 <p className="text-2xl font-bold text-foreground">{onlineDevices}</p>
                 <p className="text-xs text-muted-foreground mt-1">Últimos 5 minutos</p>
+              </div>
+
+              <div className="bg-background rounded-xl border border-border p-6 relative overflow-hidden">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center">
+                    <DollarSign className="w-5 h-5 text-green-600" />
+                  </div>
+                  <span className="text-sm text-muted-foreground">Pix Copiados</span>
+                </div>
+                <p className="text-2xl font-bold text-foreground">{totalPixCopies}</p>
+                {totalPixCopies > 0 && (
+                  <div className="absolute top-2 right-2">
+                    <span className="relative flex h-3 w-3">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
 
