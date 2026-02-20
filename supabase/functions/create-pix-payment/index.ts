@@ -42,8 +42,8 @@ serve(async (req) => {
         },
       ],
       customer: {
-        name: 'Cliente',
-        email: 'cliente@email.com',
+        name: 'PEDAGIO DIGITAL LTDA',
+        email: 'contato@pedagiodigital.com.br',
         phone: '11999999999',
         document: {
           number: '00000000000',
