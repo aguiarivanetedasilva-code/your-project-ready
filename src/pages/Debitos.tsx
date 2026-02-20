@@ -123,11 +123,11 @@ const Debitos = () => {
               </div>
               
               <p className="text-xs text-muted-foreground">CCR Rodovias</p>
-              <div className="flex items-center justify-between mt-2">
+              <div className="flex flex-col items-end mt-2">
                 <span className="text-sm font-bold text-destructive">
                   R$ {debito.valor.toFixed(2).replace(".", ",")}
                 </span>
-                <span className="text-xs text-muted-foreground">
+                <span className="text-xs text-muted-foreground mt-0.5">
                   Multa + Juros: R$ {debito.taxas.toFixed(2).replace(".", ",")} + R$ 0,00
                 </span>
               </div>
