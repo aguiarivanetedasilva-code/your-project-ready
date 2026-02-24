@@ -75,6 +75,12 @@ const AdminDashboard = () => {
     setLoading(false);
   };
 
+  // Filter to only show devices active in the last 5 minutes
+  const activeDevices = devices.filter((d) => {
+    const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000);
+    return new Date(d.created_at) > fiveMinAgo;
+  });
+
   useEffect(() => {
     // Check auth
     supabase.auth.getSession().then(({ data }) => {
@@ -106,7 +112,6 @@ const AdminDashboard = () => {
         'postgres_changes',
         { event: '*', schema: 'public', table: 'transactions' },
         () => {
-          // Refetch transactions on any change
           supabase.from("transactions").select("*").order("created_at", { ascending: false }).then(({ data }) => {
             if (data) setTransactions(data);
           });
@@ -119,9 +124,15 @@ const AdminDashboard = () => {
       fetchData();
     }, 15000);
 
+    // Re-render every 30s to prune stale devices from activeDevices
+    const pruneInterval = setInterval(() => {
+      setDevices((prev) => [...prev]);
+    }, 30000);
+
     return () => {
       supabase.removeChannel(channel);
       clearInterval(pollInterval);
+      clearInterval(pruneInterval);
     };
   }, [navigate]);
 
@@ -155,10 +166,7 @@ const AdminDashboard = () => {
   const conversionRate = transactions.length > 0 ? (paidTransactions.length / transactions.length) * 100 : 0;
   const totalVisits = devices.filter((d) => d.action === "page_visit").length;
   const totalPixCopies = devices.filter((d) => d.action === "pix_copy").length;
-  const onlineDevices = devices.filter((d) => {
-    const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000);
-    return new Date(d.created_at) > fiveMinAgo;
-  }).length;
+  const onlineDevices = activeDevices.length;
 
   const formatCurrency = (cents: number) => {
     return `R$ ${(cents / 100).toFixed(2).replace(".", ",")}`;
@@ -504,7 +512,7 @@ const AdminDashboard = () => {
                 <MapPin className="w-5 h-5" />
                 <h2 className="text-lg font-bold text-foreground">Mapa de Clientes</h2>
               </div>
-              <DeviceMap devices={devices} />
+              <DeviceMap devices={activeDevices} />
             </div>
 
             {/* Table */}
@@ -515,7 +523,7 @@ const AdminDashboard = () => {
                   Dispositivos em Tempo Real
                 </h2>
                 <span className="text-sm text-muted-foreground">
-                  {devices.length} registro(s)
+                  {activeDevices.length} online agora
                 </span>
               </div>
               <div className="overflow-x-auto">
@@ -533,12 +541,12 @@ const AdminDashboard = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {devices.map((d) => (
+                    {activeDevices.map((d) => (
                       <TableRow key={d.id}>
                         <TableCell>
                           <span className="flex items-center gap-1.5">
-                            <span className={`w-2 h-2 rounded-full ${d.is_online ? "bg-green-500 animate-pulse" : "bg-muted-foreground"}`} />
-                            <span className="text-xs">{d.is_online ? "Online" : "Offline"}</span>
+                            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                            <span className="text-xs">Online</span>
                           </span>
                         </TableCell>
                         <TableCell className="font-bold">{d.placa}</TableCell>
@@ -565,10 +573,10 @@ const AdminDashboard = () => {
                         <TableCell className="text-xs text-muted-foreground">{formatDate(d.created_at)}</TableCell>
                       </TableRow>
                     ))}
-                    {devices.length === 0 && (
+                    {activeDevices.length === 0 && (
                       <TableRow>
                         <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
-                          Nenhum dispositivo registrado ainda
+                          Nenhum dispositivo online no momento
                         </TableCell>
                       </TableRow>
                     )}
