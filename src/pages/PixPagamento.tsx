@@ -40,13 +40,16 @@ const PixPagamento = () => {
           return;
         }
 
+        console.log("[PixPagamento] Response data:", JSON.stringify(data));
+
         if (data?.success && data?.data) {
           const txData = data.data;
           setTransactionId(txData.transactionId || "");
-          // Support both response formats
-          setPixCode(txData.pixCode || txData.paymentData?.copyPaste || txData.paymentData?.qrCode || "");
-          setQrCodeBase64(txData.qrCodeBase64 || txData.paymentData?.qrCodeBase64 || "");
-          setQrCodeBase64(txData.qrCodeBase64 || txData.paymentData?.qrCodeBase64 || "");
+          const code = txData.pixCode || txData.copiaecola || txData.paymentData?.copyPaste || txData.paymentData?.copiaecola || "";
+          const qr = txData.qrCodeBase64 || txData.qrcode || txData.paymentData?.qrCodeBase64 || txData.paymentData?.qrcode || "";
+          console.log("[PixPagamento] pixCode:", code?.substring(0, 30), "qr:", qr?.substring(0, 30));
+          setPixCode(code);
+          setQrCodeBase64(qr);
         } else {
           console.error("API response error:", data);
           setError(data?.error || "Erro ao gerar pagamento.");
