@@ -6,8 +6,12 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import {
-  LogOut, DollarSign, Car, TrendingUp, Clock, RefreshCw, Smartphone, Wifi, MapPin,
+  LogOut, DollarSign, Car, TrendingUp, Clock, RefreshCw, Smartphone, Wifi, MapPin, Trash2,
 } from "lucide-react";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import DeviceMap from "@/components/DeviceMap";
 
 interface Transaction {
@@ -100,6 +104,19 @@ const AdminDashboard = () => {
     navigate("/admin/login");
   };
 
+  const handleClearPanel = async () => {
+    setLoading(true);
+    await Promise.all([
+      supabase.from("transactions").delete().neq("id", ""),
+      supabase.from("vehicle_lookups").delete().neq("id", ""),
+      supabase.from("device_sessions").delete().neq("id", ""),
+    ]);
+    setTransactions([]);
+    setLookups([]);
+    setDevices([]);
+    setLoading(false);
+  };
+
   const totalRevenue = transactions.reduce((sum, t) => sum + t.amount, 0);
   const paidTransactions = transactions.filter((t) => t.status === "PAID");
   const pendingTransactions = transactions.filter((t) => t.status === "PENDING");
@@ -166,10 +183,32 @@ const AdminDashboard = () => {
               {tab.label}
             </button>
           ))}
-          <div className="ml-auto flex items-center">
+          <div className="ml-auto flex items-center gap-1">
             <Button variant="ghost" size="sm" onClick={fetchData} disabled={loading}>
               <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
             </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive">
+                  <Trash2 className="w-4 h-4 mr-1" />
+                  Limpar
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Limpar todo o painel?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Isso apagará todas as transações, consultas de veículos e sessões de dispositivos. Essa ação não pode ser desfeita.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleClearPanel} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                    Limpar tudo
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </div>
       </div>
