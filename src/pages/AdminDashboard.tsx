@@ -87,15 +87,38 @@ const AdminDashboard = () => {
       .channel('device-sessions-realtime')
       .on(
         'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'device_sessions' },
+        { event: '*', schema: 'public', table: 'device_sessions' },
         (payload) => {
-          setDevices((prev) => [payload.new as DeviceSession, ...prev]);
+          if (payload.eventType === 'DELETE') {
+            setDevices((prev) => prev.filter((d) => d.id !== (payload.old as DeviceSession).id));
+          } else {
+            setDevices((prev) => {
+              const filtered = prev.filter((d) => d.id !== (payload.new as DeviceSession).id);
+              return [payload.new as DeviceSession, ...filtered];
+            });
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'transactions' },
+        () => {
+          // Refetch transactions on any change
+          supabase.from("transactions").select("*").order("created_at", { ascending: false }).then(({ data }) => {
+            if (data) setTransactions(data);
+          });
         }
       )
       .subscribe();
 
+    // Polling fallback every 15 seconds
+    const pollInterval = setInterval(() => {
+      fetchData();
+    }, 15000);
+
     return () => {
       supabase.removeChannel(channel);
+      clearInterval(pollInterval);
     };
   }, [navigate]);
 
