@@ -132,14 +132,20 @@ const AdminDashboard = () => {
 
   const handleClearPanel = async () => {
     setLoading(true);
-    await Promise.all([
-      supabase.from("transactions").delete().neq("id", ""),
-      supabase.from("vehicle_lookups").delete().neq("id", ""),
-      supabase.from("device_sessions").delete().neq("id", ""),
+    const [txDel, lookDel, devDel] = await Promise.all([
+      supabase.from("transactions").delete().gte("created_at", "1970-01-01"),
+      supabase.from("vehicle_lookups").delete().gte("created_at", "1970-01-01"),
+      supabase.from("device_sessions").delete().gte("created_at", "1970-01-01"),
     ]);
-    setTransactions([]);
-    setLookups([]);
-    setDevices([]);
+    console.log("[AdminDash] Delete results:", txDel.error, lookDel.error, devDel.error);
+    if (!txDel.error && !lookDel.error && !devDel.error) {
+      setTransactions([]);
+      setLookups([]);
+      setDevices([]);
+    } else {
+      // If delete failed, refetch to show actual state
+      await fetchData();
+    }
     setLoading(false);
   };
 
