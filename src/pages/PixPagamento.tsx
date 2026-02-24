@@ -43,7 +43,9 @@ const PixPagamento = () => {
         if (data?.success && data?.data) {
           const txData = data.data;
           setTransactionId(txData.transactionId || "");
+          // Support both response formats
           setPixCode(txData.pixCode || txData.paymentData?.copyPaste || txData.paymentData?.qrCode || "");
+          setQrCodeBase64(txData.qrCodeBase64 || txData.paymentData?.qrCodeBase64 || "");
           setQrCodeBase64(txData.qrCodeBase64 || txData.paymentData?.qrCodeBase64 || "");
         } else {
           console.error("API response error:", data);
