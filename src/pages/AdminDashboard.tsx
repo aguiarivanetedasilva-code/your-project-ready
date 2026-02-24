@@ -66,6 +66,9 @@ const AdminDashboard = () => {
       supabase.from("vehicle_lookups").select("*").order("created_at", { ascending: false }),
       supabase.from("device_sessions").select("*").order("created_at", { ascending: false }),
     ]);
+    console.log("[AdminDash] txRes:", txRes.data?.length, txRes.error);
+    console.log("[AdminDash] lookupRes:", lookupRes.data?.length, lookupRes.error);
+    console.log("[AdminDash] deviceRes:", deviceRes.data?.length, deviceRes.error);
     setTransactions(txRes.data || []);
     setLookups(lookupRes.data || []);
     setDevices((deviceRes.data as DeviceSession[]) || []);
