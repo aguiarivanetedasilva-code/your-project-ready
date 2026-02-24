@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, Loader2 } from "lucide-react";
+import { ChevronLeft, Loader2, CheckCircle2 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -19,9 +19,13 @@ const PixPagamento = () => {
   const [pixCode, setPixCode] = useState("");
   const [qrCodeBase64, setQrCodeBase64] = useState("");
   const [error, setError] = useState("");
+  const [transactionId, setTransactionId] = useState("");
+  const [paymentStatus, setPaymentStatus] = useState<"PENDING" | "PAID">("PENDING");
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const now = new Date();
 
+  // Create payment
   useEffect(() => {
     const createPayment = async () => {
       try {
@@ -36,10 +40,11 @@ const PixPagamento = () => {
           return;
         }
 
-        if (data?.success && data?.data?.paymentData) {
-          const pd = data.data.paymentData;
-          setPixCode(pd.copyPaste || pd.qrCode || "");
-          setQrCodeBase64(pd.qrCodeBase64 || "");
+        if (data?.success && data?.data) {
+          const txData = data.data;
+          setTransactionId(txData.transactionId || "");
+          setPixCode(txData.pixCode || txData.paymentData?.copyPaste || txData.paymentData?.qrCode || "");
+          setQrCodeBase64(txData.qrCodeBase64 || txData.paymentData?.qrCodeBase64 || "");
         } else {
           console.error("API response error:", data);
           setError(data?.error || "Erro ao gerar pagamento.");
@@ -55,13 +60,41 @@ const PixPagamento = () => {
     createPayment();
   }, [valor, placa]);
 
+  // Countdown timer
   useEffect(() => {
-    if (loading) return;
+    if (loading || paymentStatus === "PAID") return;
     const interval = setInterval(() => {
       setCountdown((prev) => (prev > 0 ? prev - 1 : 0));
     }, 1000);
     return () => clearInterval(interval);
-  }, [loading]);
+  }, [loading, paymentStatus]);
+
+  // Poll for payment status every 5 seconds
+  useEffect(() => {
+    if (!transactionId || paymentStatus === "PAID") return;
+
+    const checkStatus = async () => {
+      try {
+        const { data } = await supabase.functions.invoke("check-payment-status", {
+          body: { transactionId },
+        });
+        if (data?.success && (data.status === "PAID" || data.status === "COMPLETED")) {
+          setPaymentStatus("PAID");
+          if (pollRef.current) clearInterval(pollRef.current);
+        }
+      } catch (e) {
+        console.log("Status check error:", e);
+      }
+    };
+
+    pollRef.current = setInterval(checkStatus, 5000);
+    // Also check immediately
+    checkStatus();
+
+    return () => {
+      if (pollRef.current) clearInterval(pollRef.current);
+    };
+  }, [transactionId, paymentStatus]);
 
   const formatCountdown = (s: number) => {
     const m = Math.floor(s / 60).toString().padStart(2, "0");
@@ -80,7 +113,6 @@ const PixPagamento = () => {
       </header>
 
       {loading ? (
-        /* Loading Animation */
         <div className="flex flex-col items-center justify-center min-h-[70vh] gap-6 animate-fade-in">
           <div className="relative">
             <div className="w-20 h-20 rounded-2xl bg-primary flex items-center justify-center animate-pulse">
@@ -96,7 +128,6 @@ const PixPagamento = () => {
           </div>
         </div>
       ) : error ? (
-        /* Error State */
         <div className="flex flex-col items-center justify-center min-h-[70vh] gap-4 px-4 animate-fade-in">
           <p className="text-lg font-bold text-destructive">Erro</p>
           <p className="text-sm text-muted-foreground text-center">{error}</p>
@@ -104,10 +135,40 @@ const PixPagamento = () => {
             Tentar novamente
           </Button>
         </div>
+      ) : paymentStatus === "PAID" ? (
+        /* ─── PAID STATE ─── */
+        <div className="flex flex-col items-center justify-center min-h-[70vh] gap-6 px-4 animate-fade-in">
+          <div className="w-24 h-24 rounded-full bg-green-100 flex items-center justify-center">
+            <CheckCircle2 className="w-14 h-14 text-green-600" />
+          </div>
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-foreground mb-2">Pagamento Confirmado!</h2>
+            <p className="text-sm text-muted-foreground mb-1">
+              O pagamento de <span className="font-bold text-foreground">R$ {valor.toFixed(2).replace(".", ",")}</span> foi recebido.
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Placa: <span className="font-bold text-foreground">{placa}</span>
+            </p>
+          </div>
+          <div className="bg-green-50 border border-green-200 rounded-xl p-4 w-full max-w-sm text-center">
+            <p className="text-sm font-medium text-green-800">
+              ✅ Débito quitado com sucesso
+            </p>
+            <p className="text-xs text-green-600 mt-1">
+              A confirmação foi registrada no sistema.
+            </p>
+          </div>
+          <Button
+            onClick={() => navigate("/")}
+            className="mt-4 bg-foreground text-primary font-bold rounded-lg hover:bg-foreground/90"
+          >
+            Voltar ao início
+          </Button>
+        </div>
       ) : (
-        /* Pix Payment Content */
+        /* ─── PENDING STATE ─── */
         <div className="max-w-xl mx-auto px-4 mt-6 mb-10 animate-fade-in">
-          {/* Resumo do pedido */}
+          {/* Resumo */}
           <div className="bg-background rounded-xl border border-border p-6 mb-8">
             <h2 className="text-xl font-bold text-foreground mb-4">Resumo do pedido</h2>
             <div className="flex justify-between mb-2">
@@ -122,6 +183,12 @@ const PixPagamento = () => {
               <span className="text-sm font-medium text-foreground">Valor do pedido</span>
               <span className="text-lg font-bold text-foreground">R$ {valor.toFixed(2).replace(".", ",")}</span>
             </div>
+          </div>
+
+          {/* Waiting indicator */}
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <Loader2 className="w-4 h-4 text-muted-foreground animate-spin" />
+            <span className="text-xs text-muted-foreground">Aguardando pagamento...</span>
           </div>
 
           {/* QR Code */}
@@ -156,8 +223,7 @@ const PixPagamento = () => {
               onClick={async () => {
                 navigator.clipboard.writeText(pixCode);
                 toast({ title: "Código Pix copiado!", description: "Cole no app do seu banco para pagar." });
-                
-                // Track device session
+
                 try {
                   await supabase.functions.invoke("track-device", {
                     body: {
