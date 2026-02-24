@@ -75,11 +75,23 @@ const AdminDashboard = () => {
     setLoading(false);
   };
 
-  // Filter to only show devices active in the last 5 minutes
-  const activeDevices = devices.filter((d) => {
+  // Filter to only show devices active in the last 5 minutes, deduplicated by IP + placa
+  const activeDevices = (() => {
     const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000);
-    return new Date(d.created_at) > fiveMinAgo;
-  });
+    const recent = devices.filter((d) => new Date(d.created_at) > fiveMinAgo);
+    // Keep only the most recent entry per unique IP + placa combo
+    const seen = new Map<string, DeviceSession>();
+    for (const d of recent) {
+      const key = `${d.ip_address || ''}_${d.placa}`;
+      const existing = seen.get(key);
+      if (!existing || new Date(d.created_at) > new Date(existing.created_at)) {
+        seen.set(key, d);
+      }
+    }
+    return Array.from(seen.values()).sort((a, b) => 
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
+  })();
 
   useEffect(() => {
     // Check auth
