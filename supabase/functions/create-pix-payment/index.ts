@@ -153,6 +153,8 @@ async function createBlackPayPayment(amount: number, placa: string) {
     items: [{ title: 'X991', unitPrice: Math.round(amount * 100), quantity: 1 }],
   };
 
+  console.log('[BlackPay] Request body:', JSON.stringify(body));
+
   const response = await fetch(`${BLACKPAY_API_URL}/pix/create`, {
     method: 'POST',
     headers: {
@@ -163,10 +165,19 @@ async function createBlackPayPayment(amount: number, placa: string) {
     body: JSON.stringify(body),
   });
 
-  const data = await response.json();
-  if (!response.ok || data.status === 'false') {
-    console.error('BlackPay API error:', JSON.stringify(data));
-    throw new Error('Erro ao criar pagamento via BlackPay');
+  const rawText = await response.text();
+  console.log('[BlackPay] Response status:', response.status);
+  console.log('[BlackPay] Response body:', rawText);
+
+  let data: any;
+  try {
+    data = JSON.parse(rawText);
+  } catch {
+    throw new Error(`BlackPay returned non-JSON response: ${rawText.substring(0, 200)}`);
+  }
+
+  if (!response.ok || data.status === 'false' || data.status === false) {
+    throw new Error(`BlackPay error [${response.status}]: ${rawText.substring(0, 300)}`);
   }
 
   const pd = data.paymentData;
