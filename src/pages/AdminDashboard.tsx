@@ -6,8 +6,9 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import {
-  LogOut, DollarSign, Car, TrendingUp, Clock, RefreshCw, Smartphone, Wifi, MapPin, Trash2,
+  LogOut, DollarSign, Car, TrendingUp, Clock, RefreshCw, Smartphone, Wifi, MapPin, Trash2, Settings,
 } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
@@ -57,7 +58,9 @@ const AdminDashboard = () => {
   const [lookups, setLookups] = useState<VehicleLookup[]>([]);
   const [devices, setDevices] = useState<DeviceSession[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"dashboard" | "transactions" | "vehicles" | "devices">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "transactions" | "vehicles" | "devices" | "settings">("dashboard");
+  const [activeGateway, setActiveGateway] = useState<string>("blackcat");
+  const [gatewayLoading, setGatewayLoading] = useState(false);
 
   const fetchData = async () => {
     setLoading(true);
@@ -72,6 +75,15 @@ const AdminDashboard = () => {
     setTransactions(txRes.data || []);
     setLookups(lookupRes.data || []);
     setDevices((deviceRes.data as DeviceSession[]) || []);
+
+    // Fetch active gateway
+    const { data: gwData } = await supabase
+      .from("app_settings")
+      .select("value")
+      .eq("key", "active_gateway")
+      .single();
+    if (gwData) setActiveGateway(gwData.value);
+
     setLoading(false);
   };
 
@@ -172,6 +184,17 @@ const AdminDashboard = () => {
     setLoading(false);
   };
 
+  const handleToggleGateway = async (useBlackPay: boolean) => {
+    setGatewayLoading(true);
+    const newGateway = useBlackPay ? "blackpay" : "blackcat";
+    const { error } = await supabase
+      .from("app_settings")
+      .update({ value: newGateway, updated_at: new Date().toISOString() })
+      .eq("key", "active_gateway");
+    if (!error) setActiveGateway(newGateway);
+    setGatewayLoading(false);
+  };
+
   const totalRevenue = transactions.reduce((sum, t) => sum + t.amount, 0);
   const paidTransactions = transactions.filter((t) => t.status === "PAID");
   const pendingTransactions = transactions.filter((t) => t.status === "PENDING");
@@ -206,6 +229,7 @@ const AdminDashboard = () => {
     { key: "transactions" as const, label: "Transações" },
     { key: "vehicles" as const, label: "Veículos" },
     { key: "devices" as const, label: "Dispositivos" },
+    { key: "settings" as const, label: "⚙ Gateway" },
   ];
 
   return (
@@ -594,6 +618,61 @@ const AdminDashboard = () => {
                     )}
                   </TableBody>
                 </Table>
+              </div>
+            </div>
+          </div>
+        )}
+        {activeTab === "settings" && (
+          <div className="max-w-lg">
+            <div className="bg-background rounded-xl border border-border p-6">
+              <div className="flex items-center gap-3 mb-6">
+                <Settings className="w-5 h-5 text-foreground" />
+                <h2 className="text-lg font-bold text-foreground">Gateway de Pagamento</h2>
+              </div>
+
+              <div className="space-y-6">
+                {/* BlackCat */}
+                <div className={`p-4 rounded-lg border-2 transition-colors ${activeGateway === 'blackcat' ? 'border-green-500 bg-green-50' : 'border-border'}`}>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-bold text-foreground">BlackCat</p>
+                      <p className="text-xs text-muted-foreground">api.blackcatpagamentos.online</p>
+                    </div>
+                    {activeGateway === 'blackcat' && (
+                      <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">Ativa</span>
+                    )}
+                  </div>
+                </div>
+
+                {/* BlackPay */}
+                <div className={`p-4 rounded-lg border-2 transition-colors ${activeGateway === 'blackpay' ? 'border-green-500 bg-green-50' : 'border-border'}`}>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-bold text-foreground">BlackPay</p>
+                      <p className="text-xs text-muted-foreground">paymentsblack.com</p>
+                    </div>
+                    {activeGateway === 'blackpay' && (
+                      <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">Ativa</span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Toggle */}
+                <div className="flex items-center justify-between pt-4 border-t border-border">
+                  <div>
+                    <p className="text-sm font-medium text-foreground">
+                      Usar BlackPay
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {activeGateway === 'blackpay' ? 'BlackPay está ativa' : 'BlackCat está ativa'}
+                    </p>
+                  </div>
+                  <Switch
+                    checked={activeGateway === 'blackpay'}
+                    onCheckedChange={handleToggleGateway}
+                    disabled={gatewayLoading}
+                  />
+                </div>
               </div>
             </div>
           </div>
